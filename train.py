@@ -5,7 +5,6 @@ import sys
 import logging
 import logging.handlers
 
-import json
 from pathlib import Path
 
 import numpy as np
@@ -69,8 +68,12 @@ def train(text, epochs=100, save_freq=10, resume=False):
         logger.info("Trying to resume last training...")
         # try to resume previous training
         model_dir = Path(MODEL_DIR)
-        # load the dictionnary (character to idx file)
+        # load the dictionary (character to idx file)
         c2ifile = model_dir.joinpath('char_to_idx.json')
+        if not c2ifile.exists():
+            logger.fatal("Dictionary file <%s> not found.", c2ifile)
+            logger.fatal("Cannot resume. Abort")
+            sys.exit(1)
         with c2ifile.open('r') as f:
             char_to_idx = json.load(f)
         # list checkpoints files

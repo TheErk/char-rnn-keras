@@ -11,14 +11,15 @@ from keras.layers import LSTM, Dropout, TimeDistributed, Dense, Activation, Embe
 
 DATA_DIR = './data'
 MODEL_DIR = './model'
-
+BATCH_SIZE = 16
+SEQ_LENGTH = 64
 
 def build_sample_model(vocab_size):
     model = Sequential()
     model.add(Embedding(vocab_size, 512, batch_input_shape=(1, 1)))
     for i in range(3):
-        model.add(LSTM(256, return_sequences=(i != 2), stateful=True))
-        model.add(Dropout(0.2))
+        model.add(LSTM(512, return_sequences=(i != 2), stateful=True))
+        model.add(Dropout(0.5))
 
     model.add(Dense(vocab_size))
     model.add(Activation('softmax'))
@@ -31,6 +32,7 @@ def sample(epoch, header, num_chars):
     idx_to_char = { i: ch for (ch, i) in list(char_to_idx.items()) }
     vocab_size = len(char_to_idx)
 
+    # Why is the sample model different from the learning model.
     model = build_sample_model(vocab_size)
     load_weights(epoch, model)
     model.save(os.path.join(MODEL_DIR, 'model.{}.h5'.format(epoch)))
