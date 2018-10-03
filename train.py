@@ -49,7 +49,9 @@ class TrainLogger(object):
 
 
 def read_batches(T, vocab_size):
+    # the full text length
     length = T.shape[0]
+    # number of character per batch
     batch_chars = length // BATCH_SIZE
 
     for start in range(0, batch_chars - SEQ_LENGTH, SEQ_LENGTH):
@@ -84,7 +86,7 @@ def train(text, epochs=100, save_freq=10, resume=False):
                   lfw)
         # the biggest one is the last one
         last_epoch_checkpointed = max(lcp)
-        logger.info("Resuming from epoch %d",last_epoch_checkpointed)
+        logger.info("Resuming from epoch %d", last_epoch_checkpointed)
     else:
         last_epoch_checkpointed = 0
         char_to_idx = {ch: i for (i, ch) in enumerate(sorted(list(set(text))))}
@@ -97,11 +99,10 @@ def train(text, epochs=100, save_freq=10, resume=False):
                 BATCH_SIZE, SEQ_LENGTH, vocab_size)
     model = build_model(BATCH_SIZE, SEQ_LENGTH, vocab_size)
     model.summary()
-    if last_epoch_checkpointed>0:
-        load_weights(last_epoch_checkpointed,model)
+    if last_epoch_checkpointed > 0:
+        load_weights(last_epoch_checkpointed, model)
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
-
 
     if not resume:
         json.dump(json.loads(model.to_json()),
