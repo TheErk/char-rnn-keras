@@ -2,6 +2,7 @@ import os
 
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dropout, TimeDistributed, Dense, Activation, Embedding
+from keras import backend as K
 
 MODEL_DIR = './model'
 
@@ -16,9 +17,16 @@ def load_weights(epoch, model):
 def build_model(batch_size, seq_len, vocab_size):
     model = Sequential()
     model.add(Embedding(vocab_size, 512, batch_input_shape=(batch_size, seq_len)))
-    for i in range(3):
-        model.add(LSTM(512, return_sequences=True, stateful=True))
-        model.add(Dropout(0.5))
+    if K.backend() == 'tensorflow':
+        self.logger.debug("Keras backend is tensorflow using CuDNN LSTM.")
+        from keras.layers import CuDNNLSTM
+        for i in range(3):
+            model.add(CuDNNLSTM(512, return_sequences=True, stateful=True))
+            model.add(Dropout(0.5))
+    else:
+        for i in range(3):
+            model.add(LSTM(512, return_sequences=True, stateful=True))
+            model.add(Dropout(0.5))
 
     model.add(TimeDistributed(Dense(vocab_size)))
     model.add(Activation('softmax'))
