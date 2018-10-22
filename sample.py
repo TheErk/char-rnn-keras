@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import os
 import json
@@ -60,6 +62,11 @@ if __name__ == '__main__':
     parser.add_argument('epoch', type=int, help='epoch checkpoint to sample from')
     parser.add_argument('--seed', default='', help='initial seed for the generated text')
     parser.add_argument('--len', type=int, default=512, help='number of characters to sample (default 512)')
-    args = parser.parse_args()
+    parser.add_argument('--no-gpu', action='store_true',
+                        help='Do not use GPU for sampling (enables sampling while learning with GPU)')
 
+    args = parser.parse_args()
+    if args.no_gpu:
+        # ask tensorflow not to use GPU
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
     print(sample(args.epoch, args.seed, args.len))
